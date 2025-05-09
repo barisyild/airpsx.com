@@ -6,7 +6,8 @@ class GenerateDatabase {
     static public function main() {
         final databasePath:String = "./deploy/database.db";
 
-        FileSystem.deleteFile(databasePath);
+        if(FileSystem.exists(databasePath))
+            FileSystem.deleteFile(databasePath);
 
         var connection:Connection = Sqlite.open(databasePath);
         connection.request("CREATE TABLE scripts (key String, name String, type String, minFirmware String, maxFirmware String, version String)");
