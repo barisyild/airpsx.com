@@ -3,6 +3,6 @@
 -D js-es=6
 -lib haxeui-core
 -lib haxeui-html5
--main Main
+-main airpsx.Main
 --airpsx.macro macros.DeployTemplateMacro.apply()
 --js deploy/js/app.js
