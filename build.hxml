@@ -1,0 +1,8 @@
+-cp src
+-D analyzer-optimize
+-D js-es=6
+-lib haxeui-core
+-lib haxeui-html5
+-main Main
+--airpsx.macro macros.DeployTemplateMacro.apply()
+--js deploy/js/app.js
