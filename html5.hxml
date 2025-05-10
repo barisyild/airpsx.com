@@ -1,6 +1,7 @@
 -cp src
 -D analyzer-optimize
 -D js-es=6
+-dce full
 -lib haxeui-core
 -lib haxeui-html5
 -main airpsx.Main

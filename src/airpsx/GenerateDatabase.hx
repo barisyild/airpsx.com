@@ -2,23 +2,72 @@ package airpsx;
 import sys.db.Sqlite;
 import sys.db.Connection;
 import sys.FileSystem;
+import airpsx.type.ConsoleType;
+import airpsx.macro.tools.AbstractEnumTools;
+import haxe.io.Error;
+import sys.io.File;
+import airpsx.type.ScriptType;
+import airpsx.utils.ResolveScript;
+import haxe.crypto.Md5;
+import haxe.io.Bytes;
 class GenerateDatabase {
     static public function main() {
-        final databasePath:String = "./deploy/database.db";
+        var dateReg = new EReg("^\\d{2}\\.\\d{2}$", "");
 
-        if(FileSystem.exists(databasePath))
-            FileSystem.deleteFile(databasePath);
-
-        var connection:Connection = Sqlite.open(databasePath);
-        connection.request("CREATE TABLE scripts (key String, name String, type String, minFirmware String, maxFirmware String, version String)");
-
+        var consoleTypes:Array<String> = AbstractEnumTools.getValues(ConsoleType);
+        var scriptTypes:Array<String> = AbstractEnumTools.getValues(ScriptType);
         var scriptNames:Array<String> = [for(scriptName in sys.FileSystem.readDirectory("scripts")) scriptName];
-        for(scriptName in scriptNames) {
-            var script:{name:String, type:String, minFirmware:String, maxFirmware:String, version:String} = haxe.Json.parse(sys.io.File.getContent('./scripts/${scriptName}/${scriptName}.json'));
-            connection.request('INSERT INTO scripts (key, name, type, minFirmware, maxFirmware, version) VALUES (${quote(connection, scriptName)}, ${quote(connection, script.name)}, ${quote(connection, script.type)}, ${quote(connection, script.minFirmware)}, ${quote(connection, script.maxFirmware)}, ${quote(connection, script.version)})');
-        }
 
-        connection.close();
+        FileSystem.createDirectory('./deploy/db/');
+
+        for(consoleType in consoleTypes) {
+            final databasePath:String = './deploy/db/${consoleType}.db';
+
+            // Clear old database
+            if(FileSystem.exists(databasePath)) {
+                FileSystem.deleteFile(databasePath);
+            }
+
+            var connection:Connection = Sqlite.open(databasePath);
+            connection.request("CREATE TABLE scripts (key Text, name Text, hash Text, type Text, minFirmware Text, maxFirmware Text, version Text, authorName Text, authorSrc Text)");
+
+            for(scriptName in scriptNames) {
+                var script:ScriptTypedef = haxe.Json.parse(sys.io.File.getContent('./scripts/${scriptName}/${scriptName}.json'));
+                if(!script.enabled)
+                    continue;
+
+                var platforms:Array<ScriptPlatformTypedef> = script.platforms;
+                if(platforms.length == 0) {
+                    throw 'No platforms found in ${scriptName}';
+                }
+
+                var illegalPlatform:ScriptPlatformTypedef = Lambda.find(platforms, (platform) -> !consoleTypes.contains(platform.console));
+                if(illegalPlatform != null) {
+                    throw 'Unknown console type ${illegalPlatform.console} in ${scriptName}';
+                }
+
+                var scriptType:ScriptType = Lambda.find(scriptTypes, (type) -> type == script.type);
+                if(scriptType == null) {
+                    throw 'Unknown script type ${script.type} in ${scriptName}';
+                }
+
+                var scriptPath:String = ResolveScript.resolvePath(scriptName, scriptType);
+                var scriptBytes:Bytes = File.getBytes(scriptPath);
+                var hash:String = Md5.make(scriptBytes).toHex();
+
+                validateAirPSXVersion(script.version);
+
+                var platform:ScriptPlatformTypedef = Lambda.find(platforms, (platform) -> platform.console == consoleType);
+                if(platform != null) {
+                    validateVersionFormat(platform.minFirmware);
+                    validateVersionFormat(platform.maxFirmware);
+
+                    connection.request('INSERT INTO scripts (key, name, hash, type, minFirmware, maxFirmware, version, authorName, authorSrc) VALUES (${quote(connection, scriptName)}, ${quote(connection, script.name)}, ${quote(connection, hash)}, ${quote(connection, scriptType)}, ${quote(connection, platform.minFirmware)}, ${quote(connection, platform.maxFirmware)}, ${quote(connection, script.version)}, ${quote(connection, script.author.name)}, ${quote(connection, script.author.src)})');
+                }
+            }
+
+            connection.close();
+        }
     }
 
     private static function quote(connection:Connection, value:Dynamic):String
@@ -27,4 +76,41 @@ class GenerateDatabase {
         connection.addValue(stringBuf, value);
         return stringBuf.toString();
     }
+
+    private static function validateAirPSXVersion(version:String):Void {
+        var versionRegex:EReg = new EReg("^\\d+\\.\\d{2}$", "");
+
+        if(!versionRegex.match(version)) {
+            throw 'Invalid AirPSX version format: ${version}';
+        }
+    }
+
+    private static function validateVersionFormat(version:String):Void {
+        var versionRegex:EReg = new EReg("^\\d{2}\\.\\d{2}$", "");
+
+        if(!versionRegex.match(version)) {
+            throw 'Invalid version format: ${version}';
+        }
+    }
 }
+
+
+typedef ScriptTypedef = {
+    name:String,
+    enabled: Bool,
+    type:ScriptType,
+    version:String,
+    author:AuthorTypedef,
+    platforms:Array<ScriptPlatformTypedef>
+};
+
+typedef ScriptPlatformTypedef = {
+    console:ConsoleType,
+    minFirmware:String,
+    maxFirmware:String
+};
+
+typedef AuthorTypedef = {
+    name:String,
+    src:String
+};

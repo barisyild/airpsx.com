@@ -1,4 +1,4 @@
-package airpsx.tools;
+package airpsx.macro.tools;
 #if macro
 import haxe.macro.Context;
 #end

@@ -2,7 +2,7 @@ package airpsx.utils;
 import haxe.io.Bytes;
 import haxe.macro.Expr.ExprOf;
 using StringTools;
-using airpsx.tools.MacroExpressionTools;
+using airpsx.macro.tools.MacroExpressionTools;
 
 class CompileUtils {
     macro public static function getSystemName():ExprOf<String> {

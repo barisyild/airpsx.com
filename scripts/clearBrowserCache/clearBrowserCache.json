@@ -1,1 +1,1 @@
-{"name": "Clear Browser Cache", "type": "rulescript", "minFirmware": "0.00", "maxFirmware": "99.99", "version": "0.15"}
+{"name": "Clear Browser Cache", "enabled": true, "type": "rulescript", "version": "0.15", "platforms": [{"console": "ps5", "minFirmware": "00.00", "maxFirmware": "04.03"}], "author": {"name": "barisyild", "src": "https://github.com/barisyild"}}
