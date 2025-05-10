@@ -6,5 +6,6 @@
 -lib haxeui-html5
 -main airpsx.Main
 --macro airpsx.macro.DeployTemplateMacro.apply()
+--macro airpsx.macro.DeployScriptFilesMacro.apply()
 --js deploy/js/app.js
 --cmd haxe -neko generateDatabase.n -cp src -main airpsx.GenerateDatabase && neko generateDatabase.n
