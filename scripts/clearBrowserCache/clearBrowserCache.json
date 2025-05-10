@@ -1,1 +1,1 @@
-{"name": "Clear Browser Cache", "enabled": true, "type": "rulescript", "version": "0.15", "platforms": [{"console": "ps5", "minFirmware": "01.00", "maxFirmware": "04.55"}], "author": {"name": "barisyild", "src": "https://github.com/barisyild"}}
+{"name": "Clear Browser Cache", "enabled": true, "type": "rulescript", "version": "0.15", "platforms": [{"console": "ps5", "minFirmware": "00.00", "maxFirmware": "99.99"}], "author": {"name": "barisyild", "src": "https://github.com/barisyild"}}
