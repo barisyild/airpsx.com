@@ -36,7 +36,7 @@ jobs:
       - run: |
           haxelib install haxeui-core
           haxelib install haxeui-html5
-          haxelib install haxe-crypto
+          haxelib git haxe-crypto https://github.com/barisyild/haxe-crypto
           haxe ${{ github.workspace }}/html5.hxml
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
