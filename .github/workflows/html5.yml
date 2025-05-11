@@ -33,12 +33,11 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Haxe environment
         uses: krdlab/setup-haxe@v1.5.1
+      - uses: pxshadow/setup-hashlink@v1.0.3
       - run: |
           haxelib install haxeui-core
           haxelib install haxeui-html5
           haxelib install haxe-crypto
-          wget https://github.com/HaxeFoundation/hashlink/releases/download/latest/hashlink-0f3bc39-linux-amd64.tar.gz
-          tar -xzf hashlink-0f3bc39-linux-amd64.tar.gz
           haxe ${{ github.workspace }}/html5.hxml
       - name: Setup Pages
         uses: actions/configure-pages@v4
