@@ -10,6 +10,12 @@ import airpsx.type.ScriptType;
 import airpsx.utils.ResolveScript;
 import haxe.crypto.Md5;
 import haxe.io.Bytes;
+import com.hurlant.crypto.symmetric.AESKey;
+import com.hurlant.crypto.rsa.RSAKey;
+import com.hurlant.math.BigInteger;
+import com.hurlant.util.ByteArray;
+import com.hurlant.util.der.PEM;
+import airpsx.macro.EnvironmentMacro;
 class GenerateDatabase {
     static public function main() {
         var dateReg = new EReg("^\\d{2}\\.\\d{2}$", "");
@@ -29,7 +35,7 @@ class GenerateDatabase {
             }
 
             var connection:Connection = Sqlite.open(databasePath);
-            connection.request("CREATE TABLE scripts (key Text, name Text, hash Text, type Text, minFirmware Text, maxFirmware Text, version Text, authorName Text, authorSrc Text)");
+            connection.request("CREATE TABLE scripts (key Text, name Text, scriptHash Text, imageHash Text, type Text, minFirmware Text, maxFirmware Text, version Text, authorName Text, authorSrc Text)");
 
             for(scriptName in scriptNames) {
                 var script:ScriptTypedef = haxe.Json.parse(sys.io.File.getContent('./scripts/${scriptName}/${scriptName}.json'));
@@ -53,7 +59,10 @@ class GenerateDatabase {
 
                 var scriptPath:String = ResolveScript.resolvePath(scriptName, scriptType);
                 var scriptBytes:Bytes = File.getBytes(scriptPath);
-                var hash:String = Md5.make(scriptBytes).toHex();
+                var scriptHash:String = Md5.make(scriptBytes).toHex();
+
+                var imageBytes:Bytes = sys.io.File.getBytes('./scripts/${scriptName}/${scriptName}.png');
+                var imageHash:String = Md5.make(imageBytes).toHex();
 
                 validateAirPSXVersion(script.version);
 
@@ -62,11 +71,23 @@ class GenerateDatabase {
                     validateVersionFormat(platform.minFirmware);
                     validateVersionFormat(platform.maxFirmware);
 
-                    connection.request('INSERT INTO scripts (key, name, hash, type, minFirmware, maxFirmware, version, authorName, authorSrc) VALUES (${quote(connection, scriptName)}, ${quote(connection, script.name)}, ${quote(connection, hash)}, ${quote(connection, scriptType)}, ${quote(connection, platform.minFirmware)}, ${quote(connection, platform.maxFirmware)}, ${quote(connection, script.version)}, ${quote(connection, script.author.name)}, ${quote(connection, script.author.src)})');
+                    connection.request('INSERT INTO scripts (key, name, scriptHash, imageHash, type, minFirmware, maxFirmware, version, authorName, authorSrc) VALUES (${quote(connection, scriptName)}, ${quote(connection, script.name)}, ${quote(connection, scriptHash)}, ${quote(connection, imageHash)}, ${quote(connection, scriptType)}, ${quote(connection, platform.minFirmware)}, ${quote(connection, platform.maxFirmware)}, ${quote(connection, script.version)}, ${quote(connection, script.author.name)}, ${quote(connection, script.author.src)})');
                 }
             }
 
             connection.close();
+
+            var databaseBytes:ByteArray = ByteArray.fromBytes(File.getBytes(databasePath));
+
+            var privateKey = PEM.readRSAPrivateKey(EnvironmentMacro.get("PRIVATE_KEY", ""));
+            if(privateKey == null) {
+                throw "Failed to read private key";
+            }
+
+            var signedBytes:ByteArray = new ByteArray();
+            privateKey.sign(databaseBytes, signedBytes, databaseBytes.length);
+
+            File.saveBytes('${databasePath}.signed', signedBytes);
         }
     }
 

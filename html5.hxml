@@ -8,4 +8,4 @@
 --macro airpsx.macro.DeployTemplateMacro.apply()
 --macro airpsx.macro.DeployScriptFilesMacro.apply()
 --js deploy/js/app.js
---cmd haxe -neko generateDatabase.n -cp src -main airpsx.GenerateDatabase && neko generateDatabase.n
+--cmd haxe -hl generateDatabase.hl -lib haxe-crypto -cp src -main airpsx.GenerateDatabase && C:\Users\win11\Downloads\hashlink-0f3bc39-win64\hl generateDatabase.hl
