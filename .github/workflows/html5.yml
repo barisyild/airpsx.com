@@ -37,6 +37,8 @@ jobs:
           haxelib install haxeui-core
           haxelib install haxeui-html5
           haxelib install haxe-crypto
+          wget https://github.com/HaxeFoundation/hashlink/releases/download/latest/hashlink-0f3bc39-linux-amd64.tar.gz
+          tar -xzf hashlink-0f3bc39-linux-amd64.tar.gz
           haxe ${{ github.workspace }}/html5.hxml
       - name: Setup Pages
         uses: actions/configure-pages@v4
