@@ -8,7 +8,7 @@ class ResolveScript {
     public static function resolveName(key:String, type:ScriptType) {
         return switch (type) {
             case ScriptType.RULESCRIPT:
-                '${key}.rulescript';
+                '${key}.hx';
         }
     }
 }
