@@ -1,3 +1,5 @@
+import haxe.Exception;
+
 function getAccountId() {
 	var numb = 0;
 	var user_id = sceUserServiceGetForegroundUser();
@@ -8,8 +10,7 @@ function getAccountId() {
 		var uid = sceRegMgrGetInt(uidRegKey);
 
 		if(uid == -1) {
-			trace("SCE_REGMGR: unable to get USER_01_16_user_id(%d) (0x%x)\n", i);
-			return -1;
+			throw 'SCE_REGMGR: unable to get USER_01_16_user_id(${i})';
 		} else if(uid == user_id) {
 			numb = i;
 			break;
@@ -17,12 +18,17 @@ function getAccountId() {
 	}
 
 	if(numb == 0) {
-		trace("Unable to find the account id of the currently logged in user\n");
-		return -1;
+		throw "Unable to find the account id of the currently logged in user";
 	}
 
 	// https://github.com/ps5-payload-dev/linkdev/blob/af529eae5348e4670cbaa4e331b3702e439e97d6/regmgr.h#L3305
 	var aiRegKey = customRegMgrGenerateNum(numb, 16, 65536, 125830400, 127141120);
+
+	var account_id = sceRegMgrGetInt64(aiRegKey);
+	if(account_id == 0) {
+		throw "account id not found, probably PSN is not activated, please use offact payload for activation.";
+	}
+
 	return sceRegMgrGetBinBase64(aiRegKey, 8);
 }
 
@@ -34,9 +40,12 @@ function main() {
 	sceRegMgrSetInt(remotePlayEnableRegKey, 1);
 
 	// Get Account ID
-	var accountId = getAccountId();
-	if(accountId == -1) {
-		return "Error: Account ID not found, please make sure you are logged in to an account.";
+	var accountId = -1;
+
+	try {
+		accountId = getAccountId();
+	} catch(e:Exception) {
+		return 'Error: ${e}';
 	}
 
 	writeln('Account ID: ${accountId}');
