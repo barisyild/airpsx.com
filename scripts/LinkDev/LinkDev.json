@@ -1,1 +1,1 @@
-{"name": "linkdev (Remote Play PIN)", "enabled": true, "type": "rulescript", "version": "0.15", "platforms": [{"console": "ps5", "minFirmware": "00.00", "maxFirmware": "99.99"}], "author": {"name": "barisyild", "src": "https://github.com/barisyild"}}
+{"name": "linkdev (Remote Play PIN)", "enabled": true, "type": "rulescript", "version": "0.15", "platforms": [{"console": "ps5", "minFirmware": "00.00", "maxFirmware": "99.99"}], "author": {"name": "ps5-payload-dev", "src": "https://github.com/ps5-payload-dev"}}
