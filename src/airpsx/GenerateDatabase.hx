@@ -81,13 +81,13 @@ class GenerateDatabase {
 
             var privateKey = PEM.readRSAPrivateKey(EnvironmentMacro.get("PRIVATE_KEY", ""));
             if(privateKey == null) {
-                throw "Failed to read private key";
+                trace("Failed to read private key, skip signing.");
+            }else{
+                var signedBytes:ByteArray = new ByteArray();
+                privateKey.sign(databaseBytes, signedBytes, databaseBytes.length);
+
+                File.saveBytes('${databasePath}.signed', signedBytes);
             }
-
-            var signedBytes:ByteArray = new ByteArray();
-            privateKey.sign(databaseBytes, signedBytes, databaseBytes.length);
-
-            File.saveBytes('${databasePath}.signed', signedBytes);
         }
     }
 
