@@ -35,7 +35,7 @@ class GenerateDatabase {
             }
 
             var connection:Connection = Sqlite.open(databasePath);
-            connection.request("CREATE TABLE scripts (key Text, name Text, scriptHash Text, imageHash Text, type Text, minFirmware Text, maxFirmware Text, version Text, authorName Text, authorSrc Text)");
+            connection.request("CREATE TABLE scripts (key Text, name Text, description Text, scriptHash Text, imageHash Text, type Text, minFirmware Text, maxFirmware Text, version Text, authorName Text, authorSrc Text)");
 
             for(scriptName in scriptNames) {
                 var script:ScriptTypedef = haxe.Json.parse(sys.io.File.getContent('./scripts/${scriptName}/${scriptName}.json'));
@@ -71,7 +71,7 @@ class GenerateDatabase {
                     validateVersionFormat(platform.minFirmware);
                     validateVersionFormat(platform.maxFirmware);
 
-                    connection.request('INSERT INTO scripts (key, name, scriptHash, imageHash, type, minFirmware, maxFirmware, version, authorName, authorSrc) VALUES (${quote(connection, scriptName)}, ${quote(connection, script.name)}, ${quote(connection, scriptHash)}, ${quote(connection, imageHash)}, ${quote(connection, scriptType)}, ${quote(connection, platform.minFirmware)}, ${quote(connection, platform.maxFirmware)}, ${quote(connection, script.version)}, ${quote(connection, script.author.name)}, ${quote(connection, script.author.src)})');
+                    connection.request('INSERT INTO scripts (key, name, description, scriptHash, imageHash, type, minFirmware, maxFirmware, version, authorName, authorSrc) VALUES (${quote(connection, scriptName)}, ${quote(connection, script.name)}, ${quote(connection, script.description)}, ${quote(connection, scriptHash)}, ${quote(connection, imageHash)}, ${quote(connection, scriptType)}, ${quote(connection, platform.minFirmware)}, ${quote(connection, platform.maxFirmware)}, ${quote(connection, script.version)}, ${quote(connection, script.author.name)}, ${quote(connection, script.author.src)})');
                 }
             }
 
@@ -118,6 +118,7 @@ class GenerateDatabase {
 
 typedef ScriptTypedef = {
     name:String,
+    description:String,
     enabled: Bool,
     type:ScriptType,
     version:String,
