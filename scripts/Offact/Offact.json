@@ -1,0 +1,1 @@
+{"name": "Offact (PSN Activation)", "description": "", "enabled": true, "type": "lua", "version": "0.16", "platforms": [{"console": "ps5", "minFirmware": "00.00", "maxFirmware": "99.99"}], "author": {"name": "ps5-payload-dev", "src": "https://github.com/ps5-payload-dev"}}
