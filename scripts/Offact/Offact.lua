@@ -1,1 +1,3 @@
-print("Hello World!");
+function main()
+    sceKernelSendNotificationRequest("Hello World!");
+end
