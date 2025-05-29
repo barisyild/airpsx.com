@@ -47,14 +47,6 @@ function OffAct_SetAccountFlags(account_numb, val)
     return sceRegMgrSetInt(n, val)
 end
 
-function sceRegMgrSetInt64(n, val)
-    local bytes = {}
-    for i = 0, 7 do
-        bytes[i + 1] = (val >> (i * 8)) & 0xFF
-    end
-    return sceRegMgrSetBin(n, bytes)
-end
-
 function main()
     local activated_count = 0
 
